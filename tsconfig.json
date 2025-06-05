@@ -1,8 +1,10 @@
 {
-<<<<<<< HEAD
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "noEmit": true,
+    "jsx": "react-native",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./*"
@@ -15,23 +17,4 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ]
-=======
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
-  }
->>>>>>> f8a1c592764a5ce229a65d72a131c4a357b7fb7a
 }
