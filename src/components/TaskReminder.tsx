@@ -6,17 +6,20 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Task } from './Dashboard';
 import { useToast } from '@/hooks/use-toast';
+import TaskEditor from './TaskEditor';
 
 interface TaskReminderProps {
   task: Task;
   onToggleCompletion: (taskId: string) => void;
+  onUpdateTask: (updatedTask: Task) => void;
   currentTime: string;
   delay?: number;
 }
 
 const TaskReminder: React.FC<TaskReminderProps> = ({ 
   task, 
-  onToggleCompletion, 
+  onToggleCompletion,
+  onUpdateTask,
   currentTime,
   delay = 0 
 }) => {
@@ -136,21 +139,24 @@ const TaskReminder: React.FC<TaskReminderProps> = ({
           </div>
         </div>
 
-        {/* Completion Button */}
-        <Button
-          variant={task.completed ? "default" : "outline"}
-          size="sm"
-          onClick={handleToggleCompletion}
-          className={`
-            transition-all duration-200
-            ${task.completed 
-              ? 'bg-green-500 hover:bg-green-600 text-white' 
-              : 'hover:scale-105'
-            }
-          `}
-        >
-          <Check className={`h-4 w-4 ${task.completed ? '' : 'opacity-50'}`} />
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <TaskEditor task={task} onSave={onUpdateTask} />
+          <Button
+            variant={task.completed ? "default" : "outline"}
+            size="sm"
+            onClick={handleToggleCompletion}
+            className={`
+              transition-all duration-200
+              ${task.completed 
+                ? 'bg-green-500 hover:bg-green-600 text-white' 
+                : 'hover:scale-105'
+              }
+            `}
+          >
+            <Check className={`h-4 w-4 ${task.completed ? '' : 'opacity-50'}`} />
+          </Button>
+        </div>
       </div>
     </Card>
   );

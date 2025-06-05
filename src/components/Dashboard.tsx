@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Clock, Heart, Droplets, Bell, Settings, Moon, Sun } from 'lucide-react';
+import { Clock, Heart, Droplets, Bell, Settings, Moon, Sun, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,7 @@ import WaterTracker from './WaterTracker';
 import TaskReminder from './TaskReminder';
 import ModeSelector from './ModeSelector';
 import PeriodTracker from './PeriodTracker';
+import TaskManager from './TaskManager';
 import { useNotifications } from '../hooks/useNotifications';
 
 export type UserMode = 'boy' | 'girl';
@@ -111,12 +113,24 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    setTasks(defaultTasks);
+    // Load tasks from localStorage or use defaults
+    const savedTasks = localStorage.getItem('soul-sync-tasks');
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    } else {
+      setTasks(defaultTasks);
+    }
+    
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem('soul-sync-tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   const getCurrentTimeString = () => {
     return currentTime.toLocaleTimeString('en-US', {
@@ -141,22 +155,22 @@ const Dashboard = () => {
     await triggerHapticFeedback();
   };
 
+  const updateTask = (updatedTask: Task) => {
+    setTasks(prev => prev.map(task => 
+      task.id === updatedTask.id ? updatedTask : task
+    ));
+  };
+
+  const handleTasksChange = (newTasks: Task[]) => {
+    setTasks(newTasks);
+  };
+
   const getGreeting = () => {
     const hour = currentTime.getHours();
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     if (hour < 21) return 'Good Evening';
     return 'Good Night';
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'spiritual': return 'bg-spiritual-500';
-      case 'health': return 'bg-wellness-500';
-      case 'nutrition': return 'bg-yellow-500';
-      case 'rest': return 'bg-purple-500';
-      default: return 'bg-gray-500';
-    }
   };
 
   // Initialize notifications hook
@@ -275,10 +289,13 @@ const Dashboard = () => {
           {/* Tasks List */}
           <Card className="animate-fade-in">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Today's Schedule
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Today's Schedule
+                </CardTitle>
+                <TaskManager tasks={tasks} onTasksChange={handleTasksChange} />
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {tasks.map((task, index) => (
@@ -286,6 +303,7 @@ const Dashboard = () => {
                   key={task.id}
                   task={task}
                   onToggleCompletion={toggleTaskCompletion}
+                  onUpdateTask={updateTask}
                   currentTime={getCurrentTimeString()}
                   delay={index * 100}
                 />
