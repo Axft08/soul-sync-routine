@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Water, Plus, Minus } from 'lucide-react';
+import { Droplets, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -60,7 +59,7 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({ waterIntake, onWaterIntakeC
     <Card className="animate-fade-in">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Water className="h-5 w-5 text-blue-500" />
+          <Droplets className="h-5 w-5 text-blue-500" />
           Water Intake Tracker
         </CardTitle>
       </CardHeader>
