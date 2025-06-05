@@ -8,6 +8,7 @@ import WaterTracker from './WaterTracker';
 import TaskReminder from './TaskReminder';
 import ModeSelector from './ModeSelector';
 import PeriodTracker from './PeriodTracker';
+import { useNotifications } from '../hooks/useNotifications';
 
 export type UserMode = 'boy' | 'girl';
 
@@ -29,6 +30,7 @@ const Dashboard = () => {
   const [waterIntake, setWaterIntake] = useState(0);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [enableNotifications, setEnableNotifications] = useState(true);
 
   const defaultTasks: Task[] = [
     {
@@ -128,12 +130,15 @@ const Dashboard = () => {
   const getTotalTasks = () => tasks.length;
   const getCompletionPercentage = () => (getCompletedTasks() / getTotalTasks()) * 100;
 
-  const toggleTaskCompletion = (taskId: string) => {
+  const toggleTaskCompletion = async (taskId: string) => {
     setTasks(prev => prev.map(task => 
       task.id === taskId 
         ? { ...task, completed: !task.completed, streak: task.completed ? task.streak : task.streak + 1 }
         : task
     ));
+    
+    // Trigger haptic feedback on task completion
+    await triggerHapticFeedback();
   };
 
   const getGreeting = () => {
@@ -153,6 +158,13 @@ const Dashboard = () => {
       default: return 'bg-gray-500';
     }
   };
+
+  // Initialize notifications hook
+  const { scheduleCustomReminder, triggerHapticFeedback } = useNotifications({
+    tasks,
+    waterIntake,
+    enableNotifications
+  });
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-spiritual-50 to-wellness-50'}`}>
@@ -177,6 +189,14 @@ const Dashboard = () => {
               {getCurrentTimeString()}
             </div>
             <Button
+              variant={enableNotifications ? "default" : "outline"}
+              size="icon"
+              onClick={() => setEnableNotifications(!enableNotifications)}
+              className="animate-pulse-gentle"
+            >
+              <Bell className={`h-4 w-4 ${enableNotifications ? 'text-white' : 'text-gray-600'}`} />
+            </Button>
+            <Button
               variant="outline"
               size="icon"
               onClick={() => setIsDarkMode(!isDarkMode)}
@@ -189,6 +209,16 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Notification Status */}
+        {enableNotifications && (
+          <div className="bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg p-3">
+            <p className="text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Mobile notifications enabled - You'll receive alarms for all your scheduled tasks!
+            </p>
+          </div>
+        )}
 
         {/* Mode Selector */}
         <ModeSelector userMode={userMode} onModeChange={setUserMode} />

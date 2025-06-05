@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { notificationService } from '../services/notificationService';
 
 interface WaterTrackerProps {
   waterIntake: number;
@@ -14,9 +15,12 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({ waterIntake, onWaterIntakeC
   const [currentAmount, setCurrentAmount] = useState(0.25);
   const { toast } = useToast();
 
-  const addWater = () => {
+  const addWater = async () => {
     const newIntake = waterIntake + currentAmount;
     onWaterIntakeChange(Math.min(newIntake, 4));
+    
+    // Trigger haptic feedback
+    await notificationService.triggerHaptic();
     
     if (newIntake >= 4) {
       toast({
@@ -36,8 +40,9 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({ waterIntake, onWaterIntakeC
     }
   };
 
-  const removeWater = () => {
+  const removeWater = async () => {
     onWaterIntakeChange(Math.max(waterIntake - currentAmount, 0));
+    await notificationService.triggerHaptic();
   };
 
   const progressPercentage = (waterIntake / 4) * 100;
